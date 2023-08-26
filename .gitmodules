@@ -1,0 +1,9 @@
+[submodule "libs/curl"]
+	path = libs/curl
+	url = https://github.com/curl/curl.git
+[submodule "libs/openssl"]
+	path = libs/openssl
+	url = https://github.com/RenCorporation/openssl.git
+[submodule "libs/json"]
+	path = libs/json
+	url = https://github.com/nlohmann/json.git
