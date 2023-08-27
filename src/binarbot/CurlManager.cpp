@@ -36,11 +36,11 @@ namespace Binarbot {
     Response CurlManager::PerformUrl(const std::string& url) {
         std::string response_data;
 
-        // Установка опций CURL.
+        /// Установка опций CURL.
         curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &response_data);
 
-        // Выполнение запроса.
+        /// Выполнение запроса.
         CURLcode res = curl_easy_perform(m_curl);
 
         return Binarbot::Response(response_data, res);

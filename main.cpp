@@ -12,6 +12,7 @@ int main() {
     pCurlManager->DisableCertificate();
 
     pBinanceManager->GetExchangeInfo();
+    //pBinanceManager->GetPricesInfo();
 
     pCurlManager->DeInit();
 
