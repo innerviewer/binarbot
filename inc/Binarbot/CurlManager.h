@@ -5,7 +5,8 @@
 #ifndef BINARBOT_CURLMANAGER_H
 #define BINARBOT_CURLMANAGER_H
 
-#include <binarbot/Utils.h>
+#include <Utils/stdInclude.h>
+#include <curl/curl.h>
 
 namespace Binarbot {
     using Pairs = std::vector<std::string>;
@@ -24,9 +25,9 @@ namespace Binarbot {
         void DeInit();
 
     public:
-        BB_NODISCARD CURL* GetCurl() const { return m_curl; }
+        SR_NODISCARD CURL* GetHandle() const { return m_curl; }
 
-        BB_NODISCARD Response PerformUrl(const std::string& url);
+        SR_NODISCARD Response PerformUrl(const std::string& url);
 
     public:
         void DisableCertificate();

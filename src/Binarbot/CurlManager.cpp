@@ -2,21 +2,20 @@
 // Created by innerviewer on 8/26/2023.
 //
 
-#include <binarbot/CurlManager.h>
+#include <Binarbot/CurlManager.h>
+#include <Utils/Debug.h>
 
 namespace Binarbot {
     void CurlManager::Init() {
-        /// Инициализация библиотек.
         curl_global_init(CURL_GLOBAL_DEFAULT);
 
-        /// Создание объекта CURL.
         m_curl = curl_easy_init();
 
         if (!m_curl) {
-            BB_ERROR("CurlManager::Init() : failed to initialize Curl!")
+            SR_ERROR("CurlManager::Init() : failed to initialize Curl!");
         }
 
-        curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, Binarbot::WriteCallback);
+        //curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, );
     }
 
     void CurlManager::DeInit() {

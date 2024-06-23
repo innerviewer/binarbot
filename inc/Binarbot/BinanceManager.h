@@ -5,14 +5,25 @@
 #ifndef BINARBOT_BINANCEMANAGER_H
 #define BINARBOT_BINANCEMANAGER_H
 
-#include <binarbot/CurlManager.h>
-#include <binarbot/Enumerations.h>
+#include <Binarbot/CurlManager.h>
+#include <Utils/Common/Enumerations.h>
 
 namespace Binarbot {
-    BB_ENUM_NS_CLASS_T(TradableStatus, uint8_t,
+    SR_ENUM_NS_CLASS_T(TradableStatus, uint8_t,
         Tradable,
         NotTradable
     );
+
+    SR_ENUM_NS_CLASS_T(MarketDataEndpoints, uint64_t,
+        ServerTime, ExchangeInformation, OrderBook,
+        RecentTrades, OldTrades, AggregateTrades,
+        KlineData, CurrentAveragePrice, TickerPriceChangeStatistics,
+        SymbolPriceTicker, SymbolOrderBookTicker, OpenInterest,
+        OpenInterestStatistics
+    );
+
+    //static constexpr std::unordered_map
+    //static constexpr std::string ApiUrls
 
     class BinanceManager {
     public:
@@ -26,8 +37,8 @@ namespace Binarbot {
         { }
 
     public:
-        BB_NODISCARD void GetExchangeInfo() const;
-        BB_NODISCARD void GetPricesInfo() const;
+        SR_NODISCARD void GetExchangeInfo() const;
+        SR_NODISCARD void GetPricesInfo() const;
 
     private:
         Binarbot::CurlManager::Ptr m_curlManager = nullptr;
