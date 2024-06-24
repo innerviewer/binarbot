@@ -27,6 +27,7 @@ namespace Binarbot {
     public:
         SR_NODISCARD CURL* GetHandle() const { return m_curl; }
 
+        static size_t WriteCallback(char* pData, size_t size, size_t nmemb, std::string* pWriteData);
         SR_NODISCARD Response PerformUrl(const std::string& url);
 
     public:

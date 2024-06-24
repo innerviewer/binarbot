@@ -16,6 +16,11 @@ namespace Binarbot {
         }
 
         nlohmann::json response_json = nlohmann::json::parse(response.first, nullptr, false);
+        if (!response_json.is_object()) {
+            SR_ERROR("BinanceManager::GetExchangeInfo() : Failed to parse JSON response!");
+            return;
+        }
+
         for (const auto& symbol : response_json["symbols"]) {
             if (symbol["status"].get<std::string>() == "TRADING") {
                 std::cout << symbol["symbol"].get<std::string>() << " IS TRADABLE "<<  std::endl;
@@ -36,6 +41,11 @@ namespace Binarbot {
         }
 
         nlohmann::json response_json = nlohmann::json::parse(response.first, nullptr, false);
+        if (!response_json.is_object()) {
+            SR_ERROR("BinanceManager::GetPricesInfo() : Failed to parse JSON response!");
+            return;
+        }
+
         for (const auto& entry : response_json) {
             std::string symbol = entry["symbol"];
             std::string priceStr = entry["price"];

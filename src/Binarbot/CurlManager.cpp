@@ -14,34 +14,37 @@ namespace Binarbot {
         if (!m_curl) {
             SR_ERROR("CurlManager::Init() : failed to initialize Curl!");
         }
-
-        //curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, );
     }
 
     void CurlManager::DeInit() {
-        /// Освобождение ресурсов CURL.
         curl_easy_cleanup(m_curl);
-
-        /// Освобождение глобальных ресурсов CURL.
         curl_global_cleanup();
     }
 
     void CurlManager::DisableCertificate() {
-        /// Отключение проверки SSL-сертификата.
         curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYPEER, 0L);
         curl_easy_setopt(m_curl, CURLOPT_SSL_VERIFYHOST, 0L);
     }
 
+    size_t CurlManager::WriteCallback(char* pData, size_t size, size_t nmemb, std::string* pWriteData) {
+        if (!pWriteData) {
+            SR_ERROR("CurlManager::WriteCallback() : pWriteData is nullptr!");
+            return -1;
+        }
+
+        pWriteData->append(pData, size * nmemb);
+        return size * nmemb;
+    }
+
     Response CurlManager::PerformUrl(const std::string& url) {
-        std::string response_data;
+        std::string responseData;
 
-        /// Установка опций CURL.
         curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
-        curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &response_data);
+        curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
+        curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &responseData);
 
-        /// Выполнение запроса.
         CURLcode res = curl_easy_perform(m_curl);
 
-        return Binarbot::Response(response_data, res);
+        return Binarbot::Response(responseData, res);
     }
 }
