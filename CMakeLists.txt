@@ -24,7 +24,9 @@ add_subdirectory(libs/Utils)
 
 add_executable(Binarbot Binarbot.cxx main.cpp)
 
-target_include_directories(Binarbot PUBLIC libs/Utils/inc)
-target_include_directories(Binarbot PUBLIC inc)
-
 target_link_libraries(Binarbot Utils)
+
+target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_BINARY_DIR})
+target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/Utils/inc)
+target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/Utils/libs)
+target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inc)
