@@ -14,7 +14,7 @@ int main() {
     SR_UTILS_NS::Debug::Instance().Init(applicationDir.Concat("binarbot.log"), true);
 
     pCurlManager->Init();
-    //pCurlManager->DisableCertificate();
+    pCurlManager->DisableCertificate();
 
     pBinanceManager->GetExchangeInfo();
     //pBinanceManager->GetPricesInfo();
