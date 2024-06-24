@@ -5,6 +5,7 @@
 #include <Binarbot/BinanceManager.h>
 #include <Utils/Platform/Platform.h>
 #include <Utils/Debug.h>
+#include <Binarbot/Types/Candle.h>
 
 int main() {
     Binarbot::CurlManager::Ptr pCurlManager = std::make_shared<Binarbot::CurlManager>();
@@ -16,10 +17,13 @@ int main() {
     pCurlManager->Init();
     pCurlManager->DisableCertificate();
 
-    pBinanceManager->GetExchangeInfo();
-    //pBinanceManager->GetPricesInfo();
+    auto&& candles = pBinanceManager->GetCandleData("BTCUSDT", "1h", 5);
+    for (auto&& candle : candles) {
+        SR_LOG("BTCUSDT: {}", candle.GetHighPrice());
+    }
+
+    //auto&& candleDest = applicationDir.Concat("test.candle");
 
     pCurlManager->DeInit();
-
     return 0;
 }
