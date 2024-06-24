@@ -4,7 +4,7 @@ project(Binarbot)
 set(CMAKE_CXX_STANDARD 20)
 
 if (UNIX)
-    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcompare-debug-second -w -Wno-deprecated -fPIC")
+    set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -fcompare-debug-second -w -Wno-deprecated -fPIC -latomic")
 endif()
 
 if (UNIX AND CMAKE_BUILD_TYPE STREQUAL "Debug")
