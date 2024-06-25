@@ -55,28 +55,18 @@ namespace Binarbot {
         }
     }*/
 
-    std::vector<Candle> BinanceManager::GetCandleData(
-        const std::string& symbol, const std::string& interval, uint16_t limit
-    ) const {
-        std::vector<std::string> params = {
-            "symbol=" + symbol,
-            "interval=" + interval,
-            "limit=" + std::to_string(limit)
-        };
+    std::vector<Candle> BinanceManager::GetCandleData(const std::string& symbol, const std::string& interval, uint16_t limit) const {
+        std::vector<std::string> params = { "symbol=" + symbol,"interval=" + interval,"limit=" + std::to_string(limit) };
+        std::string candleDataUrl = m_apiUrls.at(MarketDataEndpoints::KlineData);
 
         auto&& request = ComposeRequest(candleDataUrl, params);
         SR_INFO("BinanceManager::GetCandleData() : performing API request.\n\tURL: {}", request);
 
         Response response = m_curlManager->PerformUrl(request);
-        if (response.second != CURLE_OK) {
-            SR_ERROR("BinanceManager::GetPricesInfo() : cURL request failed! Error: "
-                     + std::string(curl_easy_strerror(response.second)));
-            return { };
-        }
 
         SR_LOG("BinanceManager::GetCandleData() : response received successfully.");
-
         auto&& data = nlohmann::json::parse(response.first, nullptr, false);
+
         std::vector<Candle> candles;
         candles.reserve(limit);
 
@@ -87,7 +77,6 @@ namespace Binarbot {
                 candles.emplace_back(candle);
             }
         }
-
         return candles;
     }
 

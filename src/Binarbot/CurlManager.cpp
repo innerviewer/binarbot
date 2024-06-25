@@ -45,6 +45,12 @@ namespace Binarbot {
 
         CURLcode res = curl_easy_perform(m_curl);
 
+        if (res != CURLE_OK) {
+            SR_ERROR("CurlManager::PerformUrl() : cURL request failed! Error: " + std::string(curl_easy_strerror(res)));
+            return { };
+        }
+
         return Binarbot::Response(responseData, res);
     }
+
 }
