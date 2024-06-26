@@ -6,7 +6,9 @@
 #define BINARBOT_CANDLE_H
 
 #include <nlohmann/json.hpp>
+
 #include <Utils/FileSystem/Path.h>
+#include <Utils/Types/Marshal.h>
 
 namespace Binarbot {
     /*SR_ENUM_NS_CLASS_T(CandleInterval, uint16_t,
@@ -28,11 +30,12 @@ namespace Binarbot {
     );*/
 
     class Candle {
+        static constexpr uint16_t VERSION = 1001;
     public:
         void Initialize(const nlohmann::json& data);
 
-        SR_NODISCARD static Candle Load(const SR_UTILS_NS::Path& src);
-        SR_NODISCARD bool Save(const SR_UTILS_NS::Path& dest) const;
+        SR_NODISCARD static Candle Load(SR_HTYPES_NS::Marshal* pMarshal);
+        SR_NODISCARD bool Save(SR_HTYPES_NS::Marshal* pMarshal) const;
 
         SR_NODISCARD std::string ToString();
 

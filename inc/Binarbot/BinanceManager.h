@@ -53,6 +53,8 @@ namespace Binarbot {
 
     public:
         SR_NODISCARD std::vector<Candle> GetCandleData(const std::string& symbol, const std::string& interval, uint16_t limit) const;
+        SR_NODISCARD uint64_t GetServerTime() const;
+
     private:
         SR_NODISCARD static std::string ComposeRequest(const std::string& baseUrl, const std::vector<std::string>& params);
 

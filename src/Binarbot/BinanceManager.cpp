@@ -60,12 +60,9 @@ namespace Binarbot {
         std::string candleDataUrl = m_apiUrls.at(MarketDataEndpoints::KlineData);
 
         auto&& request = ComposeRequest(candleDataUrl, params);
-        SR_INFO("BinanceManager::GetCandleData() : performing API request.\n\tURL: {}", request);
+        auto&& response = m_curlManager->PerformUrl(request);
 
-        Response response = m_curlManager->PerformUrl(request);
-
-        SR_LOG("BinanceManager::GetCandleData() : response received successfully.");
-        auto&& data = nlohmann::json::parse(response.first, nullptr, false);
+        auto&& data = nlohmann::json::parse(response, nullptr, false);
 
         std::vector<Candle> candles;
         candles.reserve(limit);
@@ -78,6 +75,13 @@ namespace Binarbot {
             }
         }
         return candles;
+    }
+
+    uint64_t BinanceManager::GetServerTime() const {
+        auto&& response = m_curlManager->PerformUrl(m_apiUrls.at(MarketDataEndpoints::ServerTime));
+
+        auto&& data = nlohmann::json::parse(response, nullptr, false);
+        return data["serverTime"].get<uint64_t>();
     }
 
     std::string BinanceManager::ComposeRequest(const std::string& baseUrl, const std::vector<std::string>& params) {

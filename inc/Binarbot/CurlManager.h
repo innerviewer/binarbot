@@ -10,7 +10,6 @@
 
 namespace Binarbot {
     using Pairs = std::vector<std::string>;
-    using Response = std::pair<std::string, CURLcode>;
 
     struct TradeInfo {
         Pairs pairs;
@@ -28,7 +27,7 @@ namespace Binarbot {
         SR_NODISCARD CURL* GetHandle() const { return m_curl; }
 
         static size_t WriteCallback(char* pData, size_t size, size_t nmemb, std::string* pWriteData);
-        SR_NODISCARD Response PerformUrl(const std::string& url);
+        SR_NODISCARD std::string PerformUrl(const std::string& url);
 
     public:
         void DisableCertificate();

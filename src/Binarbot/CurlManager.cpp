@@ -36,21 +36,25 @@ namespace Binarbot {
         return size * nmemb;
     }
 
-    Response CurlManager::PerformUrl(const std::string& url) {
-        std::string responseData;
+    std::string CurlManager::PerformUrl(const std::string& url) {
+        std::string response;
+
+        SR_INFO("CurlManager::PerformUrl() : performing API request.\n\tURL: '{}'", url);
 
         curl_easy_setopt(m_curl, CURLOPT_URL, url.c_str());
         curl_easy_setopt(m_curl, CURLOPT_WRITEFUNCTION, &WriteCallback);
-        curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &responseData);
+        curl_easy_setopt(m_curl, CURLOPT_WRITEDATA, &response);
 
-        CURLcode res = curl_easy_perform(m_curl);
+        CURLcode curlCode = curl_easy_perform(m_curl);
 
-        if (res != CURLE_OK) {
-            SR_ERROR("CurlManager::PerformUrl() : cURL request failed! Error: " + std::string(curl_easy_strerror(res)));
+        if (curlCode != CURLE_OK) {
+            SR_ERROR("CurlManager::PerformUrl() : cURL request failed! Error: " + std::string(curl_easy_strerror(curlCode)));
             return { };
         }
 
-        return Binarbot::Response(responseData, res);
+        SR_LOG("CurlManager::PerformUrl() : response received successfully.");
+
+        return response;
     }
 
 }

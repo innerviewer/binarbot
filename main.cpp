@@ -3,9 +3,12 @@
 //
 
 #include <Binarbot/BinanceManager.h>
+
 #include <Utils/Platform/Platform.h>
 #include <Utils/Debug.h>
+
 #include <Binarbot/Types/Candle.h>
+#include <Binarbot/Types/CandleDatabase.h>
 
 int main() {
     Binarbot::CurlManager::Ptr pCurlManager = std::make_shared<Binarbot::CurlManager>();
@@ -17,12 +20,18 @@ int main() {
     pCurlManager->Init();
     pCurlManager->DisableCertificate();
 
-    auto&& candles = pBinanceManager->GetCandleData("BTCUSDT", "1h", 5);
-    for (auto&& candle : candles) {
-        SR_LOG("BTCUSDT: {}", candle.GetHighPrice());
+    units::time::hour_t interval(24);
+
+    Binarbot::CandleDatabase database(SR_UTILS_NS::StringAtom("BTCUSDT"), interval);
+    if (!database.FetchAll()) {
+        SR_ERROR("Failed to fetch all candles!");
+        return 1;
     }
 
-    //auto&& candleDest = applicationDir.Concat("test.candle");
+    if (!database.Save(applicationDir.Concat("data"))) {
+        SR_ERROR("Failed to save candle database!");
+        return 2;
+    }
 
     pCurlManager->DeInit();
     return 0;

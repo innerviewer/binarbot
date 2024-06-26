@@ -3,7 +3,6 @@
 //
 
 #include <Binarbot/Types/Candle.h>
-#include <Utils/Types/Marshal.h>
 
 namespace Binarbot {
     void Candle::Initialize(const nlohmann::json& data) {
@@ -11,7 +10,6 @@ namespace Binarbot {
             SR_ERROR("Candle::Initialize() : JSON data is empty!");
             return;
         }
-
 
         m_openTime = data[0].get<uint64_t>();
         m_openPrice = stod(data[1].get<std::string>());
@@ -32,50 +30,63 @@ namespace Binarbot {
         m_isValid = true;
     }
 
-    Candle Candle::Load(const SpaRcle::Utils::Path& src) {
+    Candle Candle::Load(SR_HTYPES_NS::Marshal* pMarshal) {
         Candle candle;
-        auto&& marshal = SR_HTYPES_NS::Marshal::Load(src);
-        candle.m_openTime = marshal.Read<uint64_t>();
-        candle.m_closeTime = marshal.Read<uint64_t>();
 
-        candle.m_openPrice = marshal.Read<double>();
-        candle.m_closePrice = marshal.Read<double>();
-        candle.m_highPrice = marshal.Read<double>();
-        candle.m_lowPrice = marshal.Read<double>();
-
-        candle.m_volume = marshal.Read<double>();
-        candle.m_numberOfTrades = marshal.Read<uint32_t>();
-
-        candle.m_quoteAssetVolume = marshal.Read<double>();
-        candle.m_takerBuyBaseAssetVolume = marshal.Read<double>();
-        candle.m_takerBuyQuoteAssetVolume = marshal.Read<double>();
-
-        if (candle.m_openTime == 0 || candle.m_closeTime == 0) {
-            candle.m_isValid = false;
+        if (!pMarshal || !pMarshal->Valid()) {
+            SR_ERROR("Candle::Load() : invalid marshal!");
+            return candle;
         }
+
+        auto&& version = pMarshal->Read<uint16_t>();
+        if (version != VERSION) {
+            SR_ERROR("Candle::Load() : invalid version! Version: '{}'.", version);
+            return candle;
+        }
+
+        candle.m_openTime = pMarshal->Read<uint64_t>();
+        candle.m_closeTime = pMarshal->Read<uint64_t>();
+
+        candle.m_openPrice = pMarshal->Read<double>();
+        candle.m_closePrice = pMarshal->Read<double>();
+        candle.m_highPrice = pMarshal->Read<double>();
+        candle.m_lowPrice = pMarshal->Read<double>();
+
+        candle.m_volume = pMarshal->Read<double>();
+        candle.m_numberOfTrades = pMarshal->Read<uint32_t>();
+
+        candle.m_quoteAssetVolume = pMarshal->Read<double>();
+        candle.m_takerBuyBaseAssetVolume = pMarshal->Read<double>();
+        candle.m_takerBuyQuoteAssetVolume = pMarshal->Read<double>();
 
         candle.m_isValid = true;
         return candle;
     }
 
-    bool Candle::Save(const SR_UTILS_NS::Path& dest) const {
-        SR_HTYPES_NS::Marshal marshal;
-        marshal.Write(m_openTime);
-        marshal.Write(m_closeTime);
+    bool Candle::Save(SR_HTYPES_NS::Marshal* pMarshal) const {
+        if (!pMarshal || !pMarshal->Valid()) {
+            SR_ERROR("Candle::Save() : invalid marshal!");
+            return false;
+        }
 
-        marshal.Write(m_openPrice);
-        marshal.Write(m_closePrice);
-        marshal.Write(m_highPrice);
-        marshal.Write(m_lowPrice);
+        pMarshal->Write(VERSION);
 
-        marshal.Write(m_volume);
-        marshal.Write(m_numberOfTrades);
+        pMarshal->Write(m_openTime);
+        pMarshal->Write(m_closeTime);
 
-        marshal.Write(m_quoteAssetVolume);
-        marshal.Write(m_takerBuyBaseAssetVolume);
-        marshal.Write(m_takerBuyQuoteAssetVolume);
+        pMarshal->Write(m_openPrice);
+        pMarshal->Write(m_closePrice);
+        pMarshal->Write(m_highPrice);
+        pMarshal->Write(m_lowPrice);
 
-        return marshal.Save(dest);
+        pMarshal->Write(m_volume);
+        pMarshal->Write(m_numberOfTrades);
+
+        pMarshal->Write(m_quoteAssetVolume);
+        pMarshal->Write(m_takerBuyBaseAssetVolume);
+        pMarshal->Write(m_takerBuyQuoteAssetVolume);
+
+        return true;
     }
 
     std::string Candle::ToString() {

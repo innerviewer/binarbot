@@ -2,6 +2,7 @@ cmake_minimum_required(VERSION 3.16)
 project(Binarbot)
 
 set(CMAKE_CXX_STANDARD 20)
+set(CMAKE_CXX_STANDARD_REQUIRED TRUE)
 
 if (WIN32)
     set(CMAKE_CXX_FLAGS "${CMAKE_CXX_FLAGS} -DNOMINMAX")
@@ -43,9 +44,10 @@ SET(CMAKE_FIND_PACKAGE_SORT_DIRECTION DEC)
 set(CMAKE_BUILD_PARALLEL_LEVEL 0)
 
 add_subdirectory(libs/Utils)
+add_subdirectory(libs/units)
 
 add_executable(Binarbot Binarbot.cxx main.cpp)
 
 target_link_libraries(Binarbot Utils)
 
-target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/inc)
+target_include_directories(Binarbot PRIVATE ${CMAKE_CURRENT_SOURCE_DIR}/libs/units/include ${CMAKE_CURRENT_SOURCE_DIR}/inc)
