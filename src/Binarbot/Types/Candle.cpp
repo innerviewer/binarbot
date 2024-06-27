@@ -69,22 +69,22 @@ namespace Binarbot {
             return false;
         }
 
-        pMarshal->Write(VERSION);
+        pMarshal->Write<uint16_t>(VERSION);
 
-        pMarshal->Write(m_openTime);
-        pMarshal->Write(m_closeTime);
+        pMarshal->Write<uint64_t>(m_openTime);
+        pMarshal->Write<uint64_t>(m_closeTime);
 
-        pMarshal->Write(m_openPrice);
-        pMarshal->Write(m_closePrice);
-        pMarshal->Write(m_highPrice);
-        pMarshal->Write(m_lowPrice);
+        pMarshal->Write<double>(m_openPrice);
+        pMarshal->Write<double>(m_closePrice);
+        pMarshal->Write<double>(m_highPrice);
+        pMarshal->Write<double>(m_lowPrice);
 
-        pMarshal->Write(m_volume);
-        pMarshal->Write(m_numberOfTrades);
+        pMarshal->Write<double>(m_volume);
+        pMarshal->Write<uint32_t>(m_numberOfTrades);
 
-        pMarshal->Write(m_quoteAssetVolume);
-        pMarshal->Write(m_takerBuyBaseAssetVolume);
-        pMarshal->Write(m_takerBuyQuoteAssetVolume);
+        pMarshal->Write<double>(m_quoteAssetVolume);
+        pMarshal->Write<double>(m_takerBuyBaseAssetVolume);
+        pMarshal->Write<double>(m_takerBuyQuoteAssetVolume);
 
         return true;
     }

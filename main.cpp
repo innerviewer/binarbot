@@ -11,28 +11,29 @@
 #include <Binarbot/Types/CandleDatabase.h>
 
 int main() {
-    Binarbot::CurlManager::Ptr pCurlManager = std::make_shared<Binarbot::CurlManager>();
-    Binarbot::BinanceManager::Ptr pBinanceManager = std::make_shared<Binarbot::BinanceManager>(pCurlManager);
-
     auto&& applicationDir = SR_PLATFORM_NS::GetApplicationDirectory();
     SR_UTILS_NS::Debug::Instance().Init(applicationDir.Concat("binarbot.log"), true);
 
-    pCurlManager->Init();
-    pCurlManager->DisableCertificate();
+    auto&& curlManager = Binarbot::CurlManager::Instance();
 
-    units::time::hour_t interval(24);
+    curlManager.Init();
+    curlManager.DisableCertificate();
 
-    Binarbot::CandleDatabase database(SR_UTILS_NS::StringAtom("BTCUSDT"), interval);
-    if (!database.FetchAll()) {
-        SR_ERROR("Failed to fetch all candles!");
-        return 1;
+    //auto&& binanceManager = Binarbot::BinanceManager::Instance();
+    auto&& databaseDir = applicationDir.Concat("data");
+
+    Binarbot::CandleDatabase database(SR_UTILS_NS::StringAtom("BTCUSDT"), Binarbot::CandleInterval::ONE_DAY, databaseDir);
+    if (database.Exists()) {
+        database.Load();
+    }
+    else {
+        database.FetchAll();
+        if (!database.Save()) {
+            SR_ERROR("Failed to save candle database!");
+            return 2;
+        }
     }
 
-    if (!database.Save(applicationDir.Concat("data"))) {
-        SR_ERROR("Failed to save candle database!");
-        return 2;
-    }
-
-    pCurlManager->DeInit();
+    curlManager.DeInit();
     return 0;
 }

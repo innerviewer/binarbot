@@ -5,6 +5,7 @@
 #ifndef BINARBOT_CURLMANAGER_H
 #define BINARBOT_CURLMANAGER_H
 
+#include <Utils/Common/Singleton.h>
 #include <Utils/stdInclude.h>
 #include <curl/curl.h>
 
@@ -15,10 +16,8 @@ namespace Binarbot {
         Pairs pairs;
     };
 
-    class CurlManager {
-    public:
-        using Ptr = std::shared_ptr<Binarbot::CurlManager>;
-
+    class CurlManager : public SR_UTILS_NS::Singleton<CurlManager> {
+        SR_REGISTER_SINGLETON(CurlManager);
     public:
         void Init();
         void DeInit();

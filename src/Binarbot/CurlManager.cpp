@@ -52,7 +52,7 @@ namespace Binarbot {
             return { };
         }
 
-        SR_LOG("CurlManager::PerformUrl() : response received successfully.");
+        SR_SUCCESS("CurlManager::PerformUrl() : response received successfully.");
 
         return response;
     }

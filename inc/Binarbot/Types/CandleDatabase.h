@@ -6,7 +6,8 @@
 #define BINARBOT_CANDLE_DATABASE_H
 
 #include <Binarbot/Types/Candle.h>
-#include <units.h>
+#include <Utils/Types/SortedVector.h>
+#include <Binarbot/Types/CandleInterval.h>
 
 namespace Binarbot {
     SR_ENUM_NS_CLASS_T(chleni, uint8_t, huy, pizda);
@@ -16,28 +17,29 @@ namespace Binarbot {
         static constexpr uint16_t VERSION = 1001;
 
     public:
-        CandleDatabase(SR_UTILS_NS::StringAtom pair, units::time::minute_t interval)
+        CandleDatabase(SR_UTILS_NS::StringAtom pair, CandleInterval interval, const SR_UTILS_NS::Path& path)
             : m_pair(pair), m_interval(interval)
-        { }
+        {
+            m_databasePath = path.Concat(pair.ToString() + "_" + CandleIntervalValue.at(interval) + ".cd");
+        }
 
     public:
-        static bool Load(const SR_UTILS_NS::Path& path);
-        SR_NODISCARD bool Save(const SR_UTILS_NS::Path& path);
+        bool Load();
+        SR_NODISCARD bool Save();
 
-        SR_NODISCARD bool FetchAll();
+        SR_NODISCARD bool Exists();
 
-        void Sort() {}
+        SR_NODISCARD void FetchAll();
 
         void Append(const std::vector<Candle>& candles);
         void Append(const Candle& candle);
 
     private:
-        bool m_isSorted = true;
         SR_UTILS_NS::StringAtom m_pair;
-        units::time::minute_t m_interval;
+        CandleInterval m_interval;
 
         SR_UTILS_NS::Path m_databasePath;
-        std::vector<Candle> m_candles;
+        std::map<uint64_t, Candle> m_candles;
     };
 }
 

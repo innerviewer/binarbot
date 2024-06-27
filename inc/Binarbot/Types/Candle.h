@@ -42,8 +42,8 @@ namespace Binarbot {
     public:
         SR_NODISCARD bool IsValid() const { return m_isValid; }
 
-        SR_NODISCARD uint32_t GetOpenTime() const { return m_openTime; }
-        SR_NODISCARD uint32_t GetCloseTime() const { return m_closeTime; }
+        SR_NODISCARD uint64_t GetOpenTime() const { return m_openTime; }
+        SR_NODISCARD uint64_t GetCloseTime() const { return m_closeTime; }
 
         SR_NODISCARD double GetOpenPrice() const { return m_openPrice; }
         SR_NODISCARD double GetClosePrice() const { return m_closePrice; }
@@ -74,6 +74,14 @@ namespace Binarbot {
         double m_quoteAssetVolume = 0.0f;
         double m_takerBuyBaseAssetVolume = 0.0f;
         double m_takerBuyQuoteAssetVolume = 0.0f;
+    };
+}
+
+namespace std {
+    template<> struct less<Binarbot::Candle> {
+        bool operator()(const Binarbot::Candle& lhs, const Binarbot::Candle& rhs) const {
+            return lhs.GetOpenTime() < rhs.GetOpenTime();
+        }
     };
 }
 

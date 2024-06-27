@@ -5,9 +5,16 @@
 #include <Binarbot/Types/CandleDatabase.h>
 
 namespace Binarbot {
-    bool CandleDatabase::Load(const SR_UTILS_NS::Path& path) {
-        SR_HTYPES_NS::Marshal marshal;
-        if (!marshal.Load(path)) {
+    bool CandleDatabase::Load() {
+        SR_LOG("CandleDatabase::Load() : loading database.");
+
+        if (!m_candles.empty()) {
+            SR_ERROR("CandleDatabase::Load() : database is not empty!");
+            return false;
+        }
+
+        SR_HTYPES_NS::Marshal marshal = SR_HTYPES_NS::Marshal::Load(m_databasePath);
+        if (!marshal.Valid()) {
             return false;
         }
 
@@ -17,65 +24,86 @@ namespace Binarbot {
             return false;
         }
 
-        auto&& pair = SR_UTILS_NS::StringAtom(marshal.Read<std::string>());
-        units::time::minute_t interval(marshal.Read<uint16_t>());
+        m_pair = SR_UTILS_NS::StringAtom(marshal.Read<std::string>());
+        m_interval = static_cast<CandleInterval>(marshal.Read<uint8_t>());
+        auto&& candleCount = marshal.Read<uint32_t>();
 
-        CandleDatabase database(pair, interval);
-
-        database.m_candles.reserve(marshal.Read<uint32_t>());
-
-        for (uint32_t i = 0; i < database.m_candles.capacity(); ++i) {
+        for (uint32_t i = 0; i < candleCount; ++i) {
             auto&& candle = Candle::Load(&marshal);
             if (!candle.IsValid()) {
                 SR_ERROR("CandleDatabase::Load() : candle is invalid!");
                 return false;
             }
 
-            database.m_candles.emplace_back(candle);
+            m_candles[candle.GetOpenTime()] = candle;
         }
 
         return true;
     }
 
-    bool CandleDatabase::Save(const SR_UTILS_NS::Path& path) {
-		if (m_candles.empty()) {
+    bool CandleDatabase::Save() {
+        SR_LOG("CandleDatabase::Save() : saving database.");
+
+        if (m_candles.empty()) {
+		    SR_ERROR("CandleDatabase::Save() : database is empty!");
             return false;
         }
 
-        if (!m_isSorted) {
-            Sort();
+        if (!m_databasePath.Create()) {
+            SR_ERROR("CandleDatabase::Save() : failed to create destination directory.");
+            return false;
         }
 
         SR_HTYPES_NS::Marshal marshal;
         marshal.Write<uint16_t>(VERSION);
         marshal.Write<std::string>(m_pair.ToString());
-        marshal.Write<uint32_t>(static_cast<uint32_t>(m_interval.value()));
+        marshal.Write<uint8_t>(m_interval);
         marshal.Write<uint32_t>(m_candles.size());
 
-        for (const auto& candle : m_candles) {
+        for (auto&& [openTime, candle] : m_candles) {
             if (!candle.Save(&marshal)) {
                 return false;
             }
         }
 
-        return marshal.Save(path);
+        return marshal.Save(m_databasePath);
     }
 
-    bool CandleDatabase::FetchAll() {
-        if (!m_candles.empty()) {
-            return false; // TODO: implement logic in this case.
+    bool CandleDatabase::Exists() {
+        return m_databasePath.Exists();
+    }
+
+    void CandleDatabase::FetchAll() {
+        SR_LOG("CandleDatabase::FetchAll() : fetching all candle data for pair '{}' and interval '{}'.", m_pair.ToString(), CandleIntervalValue.at(m_interval));
+        auto&& serverTime = BinanceManager::Instance().GetServerTime();
+        while (true) {
+            if (!m_candles.empty()) {
+                auto&& candle = m_candles.rbegin()->second;
+                if (candle.GetCloseTime() < serverTime) {
+                    Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, candle.GetCloseTime()));
+                }
+                else {
+                    return;
+                }
+            }
+            else {
+                Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, 0));
+            }
         }
-
-
     }
 
     void CandleDatabase::Append(const std::vector<Candle>& candles) {
-        m_candles.insert(m_candles.end(), candles.begin(), candles.end());
-        m_isSorted = false;
+        for (auto&& candle : candles) {
+            Append(candle);
+        }
     }
 
     void CandleDatabase::Append(const Candle& candle) {
-        m_candles.emplace_back(candle);
-        m_isSorted = false;
+        if (!m_candles.contains(candle.GetOpenTime())) {
+            m_candles[candle.GetOpenTime()] = candle;
+        }
+        else {
+            SR_ERROR("CandleDatabase::Append() : candle is already in the database!");
+        }
     }
 }

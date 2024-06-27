@@ -7,6 +7,7 @@
 
 #include <Binarbot/CurlManager.h>
 #include <Binarbot/Types/Candle.h>
+#include <Binarbot/Types/CandleInterval.h>
 
 #include <Utils/Common/Enumerations.h>
 
@@ -42,24 +43,23 @@ namespace Binarbot {
         { MarketDataEndpoints::OpenInterestStatistics, "https://fapi.binance.com/fapi/v1/openInterestStat" }
     };
 
-    class BinanceManager {
-    public:
-        using Ptr = std::shared_ptr<Binarbot::BinanceManager>;
+    class BinanceManager : public SR_UTILS_NS::Singleton<BinanceManager> {
+        SR_REGISTER_SINGLETON(BinanceManager);
+        using Super = SR_UTILS_NS::Singleton<BinanceManager>;
+    protected:
+        BinanceManager();
 
     public:
-        explicit BinanceManager(Binarbot::CurlManager::Ptr pCurlManager)
-            : m_curlManager(std::move(pCurlManager)) 
-			{ }
+        SR_NODISCARD std::vector<Candle> GetCandleData(const std::string& symbol, CandleInterval interval, uint16_t limit) const;
+        SR_NODISCARD std::vector<Candle> GetCandleData(const std::string& symbol, CandleInterval interval,
+                                                            uint16_t limit, uint64_t startTime, uint64_t endTime) const;
+        SR_NODISCARD std::vector<Candle> GetCandleData(const std::string& symbol, CandleInterval interval,
+                                                            uint16_t limit, uint64_t startTime) const;
 
-    public:
-        SR_NODISCARD std::vector<Candle> GetCandleData(const std::string& symbol, const std::string& interval, uint16_t limit) const;
         SR_NODISCARD uint64_t GetServerTime() const;
 
     private:
         SR_NODISCARD static std::string ComposeRequest(const std::string& baseUrl, const std::vector<std::string>& params);
-
-    private:
-        Binarbot::CurlManager::Ptr m_curlManager = nullptr;
     };
 }
 
