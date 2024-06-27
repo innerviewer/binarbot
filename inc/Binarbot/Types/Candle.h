@@ -42,6 +42,8 @@ namespace Binarbot {
     public:
         SR_NODISCARD bool IsValid() const { return m_isValid; }
 
+        SR_NODISCARD std::string GetOpenTimeISO() const;
+
         SR_NODISCARD uint64_t GetOpenTime() const { return m_openTime; }
         SR_NODISCARD uint64_t GetCloseTime() const { return m_closeTime; }
 

@@ -76,19 +76,16 @@ namespace Binarbot {
     void CandleDatabase::FetchAll() {
         SR_LOG("CandleDatabase::FetchAll() : fetching all candle data for pair '{}' and interval '{}'.", m_pair.ToString(), CandleIntervalValue.at(m_interval));
         auto&& serverTime = BinanceManager::Instance().GetServerTime();
-        while (true) {
-            if (!m_candles.empty()) {
-                auto&& candle = m_candles.rbegin()->second;
-                if (candle.GetCloseTime() < serverTime) {
-                    Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, candle.GetCloseTime()));
-                }
-                else {
-                    return;
-                }
-            }
-            else {
-                Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, 0));
-            }
+
+        if (m_candles.empty()) {
+            Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, 0));
+        }
+
+        auto&& candle = m_candles.rbegin()->second;
+
+        while (candle.GetCloseTime() < serverTime) {
+            Append(BinanceManager::Instance().GetCandleData(m_pair, m_interval, 1000, candle.GetCloseTime()));
+            candle = m_candles.rbegin()->second;
         }
     }
 
@@ -99,6 +96,11 @@ namespace Binarbot {
     }
 
     void CandleDatabase::Append(const Candle& candle) {
+        if (!candle.IsValid()) {
+            SR_ERROR("CandleDatabase::Append() : candle is invalid!");
+            return;
+        }
+
         if (!m_candles.contains(candle.GetOpenTime())) {
             m_candles[candle.GetOpenTime()] = candle;
         }

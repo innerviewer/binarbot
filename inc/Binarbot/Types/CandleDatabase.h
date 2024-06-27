@@ -31,6 +31,8 @@ namespace Binarbot {
 
         SR_NODISCARD void FetchAll();
 
+        SR_NODISCARD std::map<uint64_t, Candle>& GetCandles() { return m_candles; }
+
         void Append(const std::vector<Candle>& candles);
         void Append(const Candle& candle);
 

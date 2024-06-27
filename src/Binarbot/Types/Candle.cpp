@@ -105,4 +105,10 @@ namespace Binarbot {
 
         return json.dump();
     }
+
+    std::string Candle::GetOpenTimeISO() const {
+        auto&& timePoint = std::chrono::time_point<std::chrono::system_clock>(std::chrono::milliseconds(m_openTime));
+        auto&& date = std::chrono::year_month_day(std::chrono::floor<std::chrono::days>(timePoint));
+        return std::format("{:%Y-%m-%d}", date);
+    }
 }
